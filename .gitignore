@@ -1,0 +1,4 @@
+out/*
+mods/*
+*.exe
+pack/
