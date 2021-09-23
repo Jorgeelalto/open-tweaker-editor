@@ -190,10 +190,10 @@ public class TweakerModel {
         navGrid.setAlignment(Pos.CENTER);
         navGrid.setHgap(2);
         navGrid.setVgap(2);
-        navGrid.add(navigation[0], 1, 1);
-        navGrid.add(navigation[1], 1, 2);
-        navGrid.add(navigation[2], 0, 1);
-        navGrid.add(navigation[3], 1, 0);
+        navGrid.add(navigation[0], 1, 0);
+        navGrid.add(navigation[1], 1, 1);
+        navGrid.add(navigation[2], 1, 2);
+        navGrid.add(navigation[3], 0, 1);
         navGrid.add(navigation[4], 2, 1);
 
         HBox topPart = new HBox(knob[0], bigEncoder, navGrid, knob[1]);

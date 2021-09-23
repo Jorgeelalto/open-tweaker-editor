@@ -171,6 +171,7 @@ public class EditorPane {
 
         // Propagation section
         CheckBox prk = new CheckBox("Keep MIDI mappings");
+        prk.setId("propagateKeep");
         Text prt1 = new Text("Propagate changes ( ");
         Text prt2 = new Text(" ) to:");
         // The All button is always the same but the others may change
@@ -223,6 +224,17 @@ public class EditorPane {
         v6.valueProperty().addListener((obs, oldV, newV) -> {
             config.encSetChannel(encSelected, newV.byteValue());
         });
+
+        // ----------------------------
+        // -+- Propagation handlers -+-
+        // ----------------------------
+
+        // - All encoders
+        pr1.setOnMouseClicked(mouseEvent -> config.encPropAll(encSelected, prk.isSelected()));
+        // - Row
+        pr2.setOnMouseClicked(mouseEvent -> config.encPropRow(encSelected, prk.isSelected()));
+        // - Column
+        pr3.setOnMouseClicked(mouseEvent -> config.encPropColumn(encSelected, prk.isSelected()));
     }
 
     private void createPadBox() {
@@ -308,6 +320,7 @@ public class EditorPane {
 
         // Propagation section
         CheckBox prk = new CheckBox("Keep MIDI mappings");
+        prk.setId("propagateKeep");
         Text prt1 = new Text("Propagate changes ( ");
         Text prt2 = new Text(" ) to:");
         // The All button is always the same but the others may change
@@ -350,6 +363,17 @@ public class EditorPane {
         v4.valueProperty().addListener((obs, oldV, newV) -> {
             config.padSetRetriggerChannel(padSelected, newV.byteValue());
         });
+
+        // ----------------------------
+        // -+- Propagation handlers -+-
+        // ----------------------------
+
+        // - All pads
+        pr1.setOnMouseClicked(mouseEvent -> config.padPropAll(padSelected, prk.isSelected()));
+        // - Row
+        pr2.setOnMouseClicked(mouseEvent -> config.padPropRow(padSelected, prk.isSelected()));
+        // - Column
+        pr3.setOnMouseClicked(mouseEvent -> config.padPropColumn(padSelected, prk.isSelected()));
     }
 
     private void createPotentiometerBox() {
@@ -412,6 +436,7 @@ public class EditorPane {
 
         // Propagation section
         CheckBox prk = new CheckBox("Keep MIDI mappings");
+        prk.setId("propagateKeep");
         Text prt1 = new Text("Propagate changes ( ");
         Text prt2 = new Text(" ) to:");
         // The All button is always the same but the others may change
@@ -445,6 +470,15 @@ public class EditorPane {
         v2.valueProperty().addListener((obs, oldV, newV) -> {
             config.potSetChannel(potSelected, newV.byteValue());
         });
+
+        // ----------------------------
+        // -+- Propagation handlers -+-
+        // ----------------------------
+
+        // - Faders and crossfader
+        pr1.setOnMouseClicked(mouseEvent -> config.potPropAll(potSelected, prk.isSelected()));
+        // - Faders only
+        pr2.setOnMouseClicked(mouseEvent -> config.potPropFaders(potSelected, prk.isSelected()));
     }
 
     private void createButtonBox() {
@@ -570,6 +604,7 @@ public class EditorPane {
 
         // Propagation section
         CheckBox prk = new CheckBox("Keep MIDI mappings");
+        prk.setId("propagateKeep");
         Text prt1 = new Text("Propagate changes ( ");
         Text prt2 = new Text(" ) to:");
         // The All button is always the same but the others may change
@@ -607,7 +642,7 @@ public class EditorPane {
         });
         // - Local control
         v2.setOnAction(event -> {
-            config.butSetLocalControl(butSelected, v1.isSelected());
+            config.butSetLocalControl(butSelected, v2.isSelected());
         });
         // - Mapping number
         v3.valueProperty().addListener((obs, oldV, newV) -> {
@@ -635,12 +670,30 @@ public class EditorPane {
         v8.setOnAction(event -> {
             // Need this 'if' because this action is triggered in some cases we don't want
             if (v8.getValue() != null) {
-                char color = v8.getValue().substring(0, 1).toLowerCase().toCharArray()[0];
-                if (butSelected >= 38) config.navLedSetStatus(butSelected - 38, color != 'o');
-                else config.butLedSetColor(butSelected, color);
+                if (butSelected >= 38) {
+                    char color = v8.getValue().substring(1, 2).toLowerCase().toCharArray()[0];
+                    config.navLedSetStatus(butSelected - 38, color == 'n');
+                } else {
+                    char color = v8.getValue().substring(0, 1).toLowerCase().toCharArray()[0];
+                    config.butLedSetColor(butSelected, color);
+                }
             }
         });
 
+        // ------------------------
+        // -+- Propagation handlers
+        // ------------------------
+
+        // - All buttons
+        pr1.setOnMouseClicked(mouseEvent -> config.butPropAll(butSelected, prk.isSelected()));
+        // - All grid buttons
+        pr2.setOnMouseClicked(mouseEvent -> config.butPropGrid(butSelected, prk.isSelected()));
+        // - All control buttons
+        pr3.setOnMouseClicked(mouseEvent -> config.butPropControl(butSelected, prk.isSelected()));
+        // - Column
+        pr4.setOnMouseClicked(mouseEvent -> config.butPropColumn(butSelected, prk.isSelected()));
+        // - Row
+        pr5.setOnMouseClicked(mouseEvent -> config.butPropRow(butSelected, prk.isSelected()));
     }
 
     private void createBigEncoderBox() {
@@ -798,6 +851,10 @@ public class EditorPane {
         // - Channel
         Spinner<Integer> c = (Spinner<Integer>) encoderBox.lookup("#vChannel");
         c.getValueFactory().setValue((int) config.encGetChannel(control));
+
+        // Set propagation to keep original mappings by default
+        CheckBox pk = (CheckBox) encoderBox.lookup("#propagateKeep");
+        pk.setSelected(true);
     }
 
     public void configPadBox(int control) {
@@ -829,6 +886,10 @@ public class EditorPane {
         Spinner<Integer> rc = (Spinner<Integer>) padBox.lookup("#vRetChannel");
         rc.getValueFactory().setValue((int) config.padGetRetriggerChannel(control));
 
+        // Set propagation to keep original mappings by default
+        CheckBox pk = (CheckBox) padBox.lookup("#propagateKeep");
+        pk.setSelected(true);
+
         // TODO set the button handlers
     }
 
@@ -857,6 +918,10 @@ public class EditorPane {
         // - Channel
         Spinner<Integer> c = (Spinner<Integer>) potentiometerBox.lookup("#vChannel");
         c.getValueFactory().setValue((int) config.potGetChannel(control));
+
+        // Set propagation to keep original mappings by default
+        CheckBox pk = (CheckBox) potentiometerBox.lookup("#propagateKeep");
+        pk.setSelected(true);
 
         // TODO set the button handlers
     }
@@ -930,6 +995,10 @@ public class EditorPane {
                 default -> ls.setValue("Off");
             }
         }
+
+        // Set propagation to keep original mappings by default
+        CheckBox pk = (CheckBox) buttonBox.lookup("#propagateKeep");
+        pk.setSelected(true);
 
     }
 

@@ -10,6 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -74,7 +76,8 @@ public class Main extends Application {
         loadFromFileButton.setMinSize(240, 32);
         dumpConfigButton.setMinSize(240, 32);
         // Dump helper text
-        Text changesText = new Text("Some changes not dumped");
+        Text changesText = new Text("Never dumped.");
+        changesText.setFont(Font.font(null, FontWeight.NORMAL, 14));
 
 
         // Store all these buttons and text in a grid pane
@@ -97,6 +100,7 @@ public class Main extends Application {
 
         // Create the configuration and set the handlers
         tweakerConfig = new TweakerConfig();
+        tweakerConfig.changeTextSet(changesText);
         saveToFileButton.setOnMouseClicked(mouseEvent -> {saveToFile();});
         loadFromFileButton.setOnMouseClicked(mouseEvent -> {loadFromFile();});
         dumpConfigButton.setOnMouseClicked(mouseEvent -> {tweakerConfig.dump();});

@@ -62,12 +62,19 @@ public class TweakerHandler {
 
         // Try to find the device automatically
         for (MidiDevice.Info i : midiDeviceInfo) {
-            // The device has:
-            //  - name = Tweaker
-            //  - Description = External MIDI Port
+            System.out.println("name=" + i.getName() + " desc=" + i.getDescription());
+
+            // Windows
             if (i.getName().equals("Tweaker") && i.getDescription().equals("External MIDI Port")) {
                 // Set the deviceInfo to the one we found
                 deviceInfo = i;
+                break;
+            }
+
+            // macOS
+            if (i.getDescription().contains("Tweaker")) {
+                deviceInfo = i;
+                break;
             }
         }
 
@@ -91,7 +98,6 @@ public class TweakerHandler {
         // Check whether the argument makes sense
         if (id < 0 || id > (midiDeviceInfo.length - 1)) {
             System.out.println("manualOpen: Argument id is invalid -- negative or too high");
-            return;
         } else {
             // Store the device info
             MidiDevice.Info deviceInfo = midiDeviceInfo[id];
@@ -101,28 +107,29 @@ public class TweakerHandler {
 
 
     // Send note message to device
-    public boolean sendNote(int channel, int note, int velocity) {
+    public void sendNote(int channel, int note, int velocity) {
+        System.out.println("sendNote: ch: " + channel + ", cc: " + note + ", bb: " + velocity);
 
         // Internally the channel number has a range of 0 to 15 instead of the human readable 1 to 16
         channel--;
         // Check for arguments correctness. Our operational range for the byte data type is 0 to 127
         if (channel < 0 || channel > 15) {
             System.out.println("sendNote: channel argument is out of operational range (0 - 15)");
-            return false;
+            return;
         }
         if (note < 0) {
             System.out.println("sendNote: note argument is out of operational range (0 - 127)");
-            return false;
+            return;
         }
         if (velocity < 0) {
             System.out.println("sendNote: velocity argument is out of operational range (0 - 127)");
-            return false;
+            return;
         }
 
         // Check the status of the device and receiver objects
         if (device == null || receiver == null) {
             System.out.println("sendNote: The device is not initialized -- calling automaticOpen should solve this");
-            return false;
+            return;
         }
 
         ShortMessage message = new ShortMessage();
@@ -134,37 +141,37 @@ public class TweakerHandler {
         } catch (Exception e) {
             System.out.println("sendNote: Could not set CC message data");
             e.printStackTrace();
-            return false;
+            return;
         }
 
         receiver.send(message, -1);
-        return true;
     }
 
 
     // Send CC message to device
-    public boolean sendCC(int channel, int cc, int velocity) {
+    public void sendCC(int channel, int cc, int velocity) {
+        System.out.println("sendCC: ch: " + channel + ", cc: " + cc + ", bb: " + velocity);
 
         // Internally the channel number has a range of 0 to 15 instead of the human readable 1 to 16
         channel--;
         // Check for arguments correctness. Our operational range for the byte data type is 0 to 127
         if (channel < 0 || channel > 15) {
             System.out.println("sendCC: channel argument is out of operational range (0 - 15)");
-            return false;
+            return;
         }
-        if (cc < 0) {
+        if (cc < 0 || cc > 127) {
             System.out.println("sendCC: note argument is out of operational range (0 - 127)");
-            return false;
+            return;
         }
-        if (velocity < 0) {
+        if (velocity < 0 || velocity > 127) {
             System.out.println("sendCC: velocity argument is out of operational range (0 - 127)");
-            return false;
+            return;
         }
 
         // Check the status of the device and receiver objects
         if (device == null || receiver == null) {
             System.out.println("sendCC: The device is not initialized -- calling automaticOpen should solve this");
-            return false;
+            return;
         }
 
         ShortMessage message = new ShortMessage();
@@ -176,12 +183,11 @@ public class TweakerHandler {
         } catch (Exception e) {
             System.out.println("sendCC: Could not set CC message data");
             e.printStackTrace();
-            return false;
+            return;
         }
 
         receiver.send(message, -1);
 
-        return true;
     }
 
 
@@ -203,24 +209,24 @@ public class TweakerHandler {
 
 
     // Light show
-    public void lightShow() throws InterruptedException {
+    public void lightShow() {
 
         new Thread(() -> {
 
             final int ms = 50;
-            final int a1 = RED, a2 = YELLOW;
-            final int b1 = MAGENTA, b2 = BLUE;
+            final int a2 = YELLOW;
+            final int b2 = BLUE;
 
             int[] pos1 = {1, 10, 19, 28, 21, 14, 7, 16, 23, 30, 21, 12, 3, 10, 17};
             int[] pos2 = {32, 23, 14, 5, 12, 19, 26, 17, 10, 3, 12, 21, 30, 23, 16};
 
             for (int i = 0; i < pos1.length; i++) {
 
-                sendNote(1, pos1[i], a1);
+                sendNote(1, pos1[i], RED);
                 if (i > 0) sendNote(1, pos1[i - 1], a2);
                 if (i > 1) sendNote(1, pos1[i - 2], OFF);
 
-                sendNote(1, pos2[i], b1);
+                sendNote(1, pos2[i], MAGENTA);
                 if (i > 0) sendNote(1, pos2[i - 1], b2);
                 if (i > 1) sendNote(1, pos2[i - 2], OFF);
 

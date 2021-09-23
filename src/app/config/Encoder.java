@@ -32,7 +32,6 @@ class Encoder {
         ledChannel = 1;
     }
 
-
     public char getRingMode() {
         return ringMode;
     }
